@@ -17,13 +17,48 @@
 	var/charges = 10
 	var/ready = 0
 	var/emagged = 0
+	var/max_lube = 50
 
 /obj/item/weapon/melee/defibrillator/New()
+	. = ..()
+	create_reagents(max_lube)
+//	reagents.add_reagent(LUBE, 50)
 	return ..()
+
+/obj/item/weapon/melee/defibrillator/examine(mob/user)
+	..()
+	to_chat(user, "It contains [reagents.get_reagent_amount(LUBE)] units of lubricant!")
+
+/obj/item/weapon/melee/defibrillator/attackby(obj/item/W as obj, mob/user as mob)
+	if(istype(W,/obj/item/weapon/reagent_containers/) && W.flags & OPENCONTAINER)
+		var/obj/item/weapon/reagent_containers/G = W
+		if(G.reagents.reagent_list.len>1)
+			user.simple_message("<span class='warning'>The mixture is rejected by the defibrillator.</span>")
+			return
+		if(!G.reagents.has_reagent(LUBE))
+			user.simple_message("<span class='warning'>The defibrillator is not compatible with that.</span>")
+			return
+		else
+			var/space = max_lube - reagents.total_volume
+			if(!space)
+				user.simple_message("<span class='warning'>The defibrillator is full!</span>")
+				return
+			var/transfer_amount = min(G.amount_per_transfer_from_this,space)
+			user.simple_message("<span class='info'>You transfer [transfer_amount] units to the [src].</span>")
+			if(G.reagents.has_reagent(LUBE))
+				G.reagents.trans_id_to(src,LUBE,transfer_amount)
+	else
+		return ..()
+
+/obj/item/weapon/melee/defibrillator/proc/remove_lube(var/amount = 5, mob/user as mob)
+	if(reagents.get_reagent_amount(LUBE) >= amount)
+		reagents.remove_reagent(LUBE, amount)
+		return
 
 /obj/item/weapon/melee/defibrillator/suicide_act(var/mob/living/user)
 	to_chat(viewers(user), "<span class='warning'>[user] is putting the live paddles on \his chest! It looks like \he's trying to commit suicide.</span>")
 	playsound(src,'sound/items/defib.ogg',50,1)
+	remove_lube()
 	return (SUICIDE_ACT_FIRELOSS)
 
 /obj/item/weapon/melee/defibrillator/update_icon()
@@ -102,6 +137,7 @@
 				to_chat(user, "<span class='warning'>[src] buzzes: Vital signs detected.</span>")
 		else
 			attemptDefib(target,user)
+			remove_lube()
 	return
 
 /obj/item/weapon/melee/defibrillator/proc/shockAttack(mob/living/carbon/human/target,mob/user)
@@ -135,6 +171,9 @@
 		charges--
 		update_icon()
 		to_chat(user, "<span class='notice'>You shock [target] with the paddles.</span>")
+		var/space = max_lube - reagents.total_volume
+		if(space==max_lube)
+			target.apply_damage(15,BURN,LIMB_CHEST)
 		var/datum/organ/internal/heart/heart = target.get_heart()
 		if(!heart)
 			target.visible_message("<span class='warning'>[src] buzzes: Defibrillation failed. Subject requires a heart.</span>")
