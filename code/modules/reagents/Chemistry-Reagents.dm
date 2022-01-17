@@ -3233,6 +3233,7 @@
 	var/has_had_heart_explode = 0 //We've applied permanent damage.
 	custom_metabolism = 0.04
 	var/oldspeed = 0
+
 /datum/reagent/hypozine/reagent_deleted()
 
 	if(..())
@@ -9054,8 +9055,6 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 
 	M.nutrition += nutriment_factor
 
-
-
 /datum/reagent/saltwater
 	name = "Salt Water"
 	id = SALTWATER
@@ -9075,20 +9074,29 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 		H.vomit()
 		M.adjustToxLoss(2 * REM)
 
-/datum/reagent/saltwater/saline
+/datum/reagent/saline
 	name = "Saline"
 	id = SALINE
-	description = "A solution composed of salt, water, and ammonia. Used in pickling and preservation"
+	description = "A solution composed of diluted saltwater. When introduced intravenously, it can help mitigate the effects of hypovolemia. It also has uses in preserving organs."
 	reagent_state = REAGENT_STATE_LIQUID
 	color = "#DEF7F5" //rgb: 192, 227, 233
 	alpha = 64
-	density = 0.622
-	specheatcap = 99.27
+	density = 1.045
+	specheatcap = 4.184
+	custom_metabolism = 5
+
+/datum/reagent/saline/reaction_mob(var/mob/living/carbon/human/M, var/method=TOUCH, var/volume)
+
+	if(INTRAV)
+		var/S = M.reagents.get_reagent_amount(SALINE)
+		var/B = (S/2)
+		M.vessel.add_reagent(BLOOD, B)
+		M.reagents.del_reagent(SALINE)
 
 /datum/reagent/calciumoxide
 	name = "Calcium Oxide"
 	id = CALCIUMOXIDE
-	description = "Quicklime. Reacts strongly with water forming calcium hydrate and generating heat in the process"
+	description = "Quicklime. Reacts strongly with water, forming calcium hydrate and generating heat in the process."
 	color = "#FFFFFF"
 	density = 3.34
 	specheatcap = 42.09

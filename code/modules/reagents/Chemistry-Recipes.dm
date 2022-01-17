@@ -3481,7 +3481,7 @@
 	name = "Saline"
 	id = SALINE
 	result = SALINE
-	required_reagents = list(SALTWATER = 10, AMMONIA = 1)
+	required_reagents = list(SALTWATER = 5, WATER = 1, SUGAR = 1)
 	result_amount = 10
 
 /datum/chemical_reaction/calciumhydroxide
