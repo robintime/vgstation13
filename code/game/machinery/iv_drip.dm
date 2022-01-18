@@ -112,20 +112,31 @@
 		// Give blood
 		if(mode)
 			if(beaker.volume > 0)
-				if(beaker.reagents.reagent_list.len == 1 && beaker.reagents.has_reagent(BLOOD))
-					// speed up transfer if the container has ONLY blood
-					beaker.reagents.trans_to(attached, 12)
-				else if(has_reagent(SALINE))
-					FLKDSJLKDHFSFLKSHDFSLKJHDSALKSHAL
-				else
-					// otherwise: transfer a little bit of all reagents to the patient. the reason why we don't transfer a set amount is because 0.2u of 10 different reagents is 0.02u of each, which is entirely too little.
-					for(var/datum/reagent/reagent in beaker.reagents.reagent_list)
-						beaker.reagents.trans_id_to(attached, reagent.id, reagent.custom_metabolism)
+				if(beaker.reagents.reagent_list.len == 1)
+					if(beaker.reagents.has_reagent(SALINE))
+						var/S = beaker.reagents.get_reagent_amount(SALINE)
+						var/M = 5 //speed at which saline drains from an IV drip
+						if(S>=M)
+							attached.vessel.add_reagent(BLOOD, M/2)
+							beaker.reagents.remove_reagent(SALINE, M)
+					else if(beaker.reagents.has_reagent(BLOOD))
+						// speed up transfer if the container has ONLY blood
+						beaker.reagents.trans_to(attached, 12)
+					else
+						// otherwise: transfer a little bit of all reagents to the patient. the reason why we don't transfer a set amount is because 0.2u of 10 different reagents is 0.02u of each, which is entirely too little.
+						for(var/datum/reagent/reagent in beaker.reagents.reagent_list)
+							beaker.reagents.trans_id_to(attached, reagent.id, reagent.custom_metabolism)
 				update_icon()
 
 				if(beaker.is_empty() && beaker.should_qdel_if_empty())
 					qdel(beaker)
 					detach()
+
+//if(method==INTRAV)
+//	call reaction
+//  remove reagent from beaker
+//  DO NOT tranfer to mob
+//
 
 		// Take blood
 		else

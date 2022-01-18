@@ -9083,15 +9083,6 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	alpha = 64
 	density = 1.045
 	specheatcap = 4.184
-	custom_metabolism = 5
-
-/datum/reagent/saline/reaction_mob(var/mob/living/carbon/human/M, var/method=TOUCH, var/volume)
-
-	if(INTRAV)
-		var/S = M.reagents.get_reagent_amount(SALINE)
-		var/B = (S/2)
-		M.vessel.add_reagent(BLOOD, B)
-		M.reagents.del_reagent(SALINE)
 
 /datum/reagent/calciumoxide
 	name = "Calcium Oxide"
