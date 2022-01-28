@@ -1,4 +1,4 @@
-//Procedures in this file: Facial reconstruction surgery
+//Procedures in this file: Facial reconstruction surgery, face removal surgery, facial reattachment surgery
 //////////////////////////////////////////////////////////////////
 //						FACE SURGERY							//
 //////////////////////////////////////////////////////////////////
@@ -162,3 +162,56 @@
 	user.visible_message("<span class='warning'>[user]'s hand slips, leaving a small burn on [target]'s face with \the [tool]!</span>", \
 	"<span class='warning'>Your hand slips, leaving a small burn on [target]'s face with \the [tool]!</span>")
 	target.apply_damage(4, BURN, affected)
+
+
+
+
+
+//////////////////////////////////////////////////////////////////
+//			  	     FACE REMOVAL SURGERY						//
+//////////////////////////////////////////////////////////////////
+
+
+//fascia disconnecting
+
+/datum/surgery_step/face/face_disconnect
+	allowed_tools = list(
+		/obj/item/tool/scalpel = 100,
+		/obj/item/weapon/melee/blood_dagger = 90,
+		/obj/item/weapon/kitchen/utensil/knife/large = 75,
+		/obj/item/weapon/shard = 50,
+		/obj/item/soulstone/gem = 0,
+		/obj/item/soulstone = 50,
+		)
+
+	duration = 5 SECONDS
+
+/datum/surgery_step/face/face_disconnect/can_use(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
+	return ..() && target.op_stage.face == 1
+
+/datum/surgery_step/face/face_disconnect/begin_step(mob/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
+	user.visible_message("[user] starts severing the fascia beneath [target]'s skin with \the [tool].", \
+	"You start severing the fascia beneath [target]'s skin with \the [tool].")
+	..()
+
+/datum/surgery_step/face/face_disconnect/end_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
+	user.visible_message("<span class='notice'>[user] severs the fascia beneath [target]'s skin with \the [tool].</span>", \
+	"<span class='notice'>You sever the fascia beneath [target]'s skin with \the [tool].</span>")
+
+/datum/surgery_step/face/face_disconnect/fail_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
+	user.visible_message("<span class='warning'>[user]'s hand slips, mangling the flesh beneath [target]'s face with \the [tool]!</span>", \
+	"<span class='warning'>Your hand slips, angling the flesh beneath [target]'s face with \the [tool]!</span>")
+	target.affected.createwound(CUT, 10)
+
+
+//removing face
+
+/datum/surgery_step/face/remove_face
+
+	allowed_tools = list(
+		/obj/item/tool/hemostat = 100,
+		/obj/item/tool/wirecutters = 75,
+		/obj/item/weapon/kitchen/utensil/fork = 20,
+		)
+
+	duration = 6 SECONDS
